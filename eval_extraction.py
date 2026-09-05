@@ -25,6 +25,21 @@ def norm(v):
     return str(v).strip().lower()
 
 
+def score_field(field, common, truth, extracted):
+    """Return (correct, hallucinated, missed) counts for one field over the common job_ids."""
+    correct = hallucinated = missed = 0
+    for jid in common:
+        t = norm(truth[jid][field])
+        e = norm(extracted[jid][field])
+        if t == e:
+            correct += 1
+        elif t == "" and e != "":
+            hallucinated += 1
+        elif t != "" and e == "":
+            missed += 1
+    return correct, hallucinated, missed
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--extracted", default="job_cards_extracted.csv")
@@ -44,16 +59,7 @@ def main():
     print(f"Scoring {len(common)} rows\n")
     print(f"{'field':<26}{'accuracy':>10}{'hallucinated':>14}{'missed':>10}")
     for field in FIELDS:
-        correct = hallucinated = missed = 0
-        for jid in common:
-            t = norm(truth[jid][field])
-            e = norm(extracted[jid][field])
-            if t == e:
-                correct += 1
-            elif t == "" and e != "":
-                hallucinated += 1
-            elif t != "" and e == "":
-                missed += 1
+        correct, hallucinated, missed = score_field(field, common, truth, extracted)
         n = len(common)
         print(f"{field:<26}{correct/n:>9.1%}{hallucinated/n:>13.1%}{missed/n:>10.1%}")
 
