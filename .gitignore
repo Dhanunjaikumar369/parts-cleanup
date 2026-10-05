@@ -1,3 +1,5 @@
 __pycache__/
 *.pyc
 job_cards_extracted.csv
+part_usage_report.csv
+part_reuse_shelf_report.csv
