@@ -1,3 +1,4 @@
 __pycache__/
 *.pyc
 job_cards_extracted.csv
+wear_analysis.csv
