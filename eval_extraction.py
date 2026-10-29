@@ -6,6 +6,7 @@ For each of the 5 fields, reports:
   - accuracy: exact match rate (case/whitespace-insensitive), including correctly-null cases
   - hallucination rate: ground truth says null but LLM produced a value
   - miss rate: ground truth has a value but LLM said null
+  - wrong rate: both ground truth and LLM have a value, but they disagree
 
 Usage:
   python3 eval_extraction.py --extracted job_cards_extracted.csv --truth job_cards_ground_truth.csv
@@ -42,9 +43,9 @@ def main():
         return
 
     print(f"Scoring {len(common)} rows\n")
-    print(f"{'field':<26}{'accuracy':>10}{'hallucinated':>14}{'missed':>10}")
+    print(f"{'field':<26}{'accuracy':>10}{'hallucinated':>14}{'missed':>10}{'wrong':>10}")
     for field in FIELDS:
-        correct = hallucinated = missed = 0
+        correct = hallucinated = missed = wrong = 0
         for jid in common:
             t = norm(truth[jid][field])
             e = norm(extracted[jid][field])
@@ -54,8 +55,10 @@ def main():
                 hallucinated += 1
             elif t != "" and e == "":
                 missed += 1
+            else:
+                wrong += 1
         n = len(common)
-        print(f"{field:<26}{correct/n:>9.1%}{hallucinated/n:>13.1%}{missed/n:>10.1%}")
+        print(f"{field:<26}{correct/n:>9.1%}{hallucinated/n:>13.1%}{missed/n:>10.1%}{wrong/n:>9.1%}")
 
 
 if __name__ == "__main__":
